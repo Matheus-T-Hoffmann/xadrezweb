@@ -41,7 +41,7 @@ POST `/users`
 {
   "username": "joao",
   "email": "joao@email.com",
-  "password": "123"
+  "password": "12345678"
 }
 ```
 
@@ -54,7 +54,7 @@ POST `/auth/login`
 ```json
 {
   "email": "joao@email.com",
-  "password": "123"
+  "password": "12345678"
 }
 ```
 
