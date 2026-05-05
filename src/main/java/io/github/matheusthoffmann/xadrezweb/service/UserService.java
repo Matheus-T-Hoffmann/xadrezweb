@@ -1,0 +1,74 @@
+package io.github.matheusthoffmann.xadrezweb.service;
+
+import io.github.matheusthoffmann.xadrezweb.domain.user.User;
+import io.github.matheusthoffmann.xadrezweb.dto.user.UserRequest;
+import io.github.matheusthoffmann.xadrezweb.dto.user.UserResponse;
+import io.github.matheusthoffmann.xadrezweb.repository.UserRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class UserService {
+
+    private final UserRepository repository;
+
+    public UserService(UserRepository repository) {
+        this.repository = repository;
+    }
+
+    public UserResponse create(UserRequest request) {
+        repository.findByEmail(request.email())
+                .ifPresent(u -> {
+                    throw new RuntimeException("Email already exists");
+                });
+
+        User user = new User(
+                request.username(),
+                request.email(),
+                request.password()
+        );
+
+        repository.save(user);
+        return toResponse(user);
+    }
+
+    public UserResponse findById(Long id) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return toResponse(user);
+    }
+
+    public List<UserResponse> findAll() {
+        return repository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public UserResponse update(Long id, UserRequest request) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setPassword(request.password());
+
+        repository.save(user);
+        return toResponse(user);
+    }
+
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
+
+    private UserResponse toResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getElo()
+        );
+    }
+}
