@@ -90,6 +90,28 @@ public class MatchService {
                     ? match.getPlayerBlack()
                     : match.getPlayerWhite();
 
+            User loser = (winner == match.getPlayerWhite())
+                    ? match.getPlayerBlack()
+                    : match.getPlayerWhite();
+
+            int winnerNewElo = calculateElo(
+                    winner.getElo(),
+                    loser.getElo(),
+                    1.0
+            );
+
+            int loserNewElo = calculateElo(
+                    loser.getElo(),
+                    winner.getElo(),
+                    0.0
+            );
+
+            winner.setElo(winnerNewElo);
+            loser.setElo(loserNewElo);
+
+            userRepository.save(winner);
+            userRepository.save(loser);
+
             match.finish(winner);
             matchRepository.save(match);
         }
@@ -124,5 +146,14 @@ public class MatchService {
                 game.isCheck(),
                 game.isCheckMate()
         );
+    }
+
+    private int calculateElo(int rating, int opponentRating, double score) {
+
+        int K = 32;
+
+        double expected = 1.0 / (1 + Math.pow(10, (opponentRating - rating) / 400.0));
+
+        return (int) (rating + K * (score - expected));
     }
 }
