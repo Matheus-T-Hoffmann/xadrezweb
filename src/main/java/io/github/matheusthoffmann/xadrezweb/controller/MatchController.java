@@ -1,6 +1,7 @@
 package io.github.matheusthoffmann.xadrezweb.controller;
 
 import io.github.matheusthoffmann.xadrezweb.dto.match.MatchResponse;
+import io.github.matheusthoffmann.xadrezweb.dto.match.MoveRequest;
 import io.github.matheusthoffmann.xadrezweb.service.MatchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,5 +29,14 @@ public class MatchController {
     @GetMapping("/{id}")
     public ResponseEntity<MatchResponse> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @PostMapping("/{id}/moves")
+    public ResponseEntity<?> makeMove(
+            @PathVariable Long id,
+            @RequestBody MoveRequest request) {
+
+        service.makeMove(id, request);
+        return ResponseEntity.ok().build();
     }
 }

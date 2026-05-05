@@ -22,4 +22,10 @@ public class ChessPosition {
     protected static ChessPosition fromPosition(Position position){
         return new ChessPosition((char) (position.getColumn() + 'a'), 8 - position.getRow());
     }
+
+    public static ChessPosition fromString (String pos) {
+        char column = pos.charAt(0);
+        int row = Integer.parseInt(pos.substring(1));
+        return new ChessPosition(column, row);
+    }
 }

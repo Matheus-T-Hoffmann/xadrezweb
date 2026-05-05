@@ -1,8 +1,11 @@
 package io.github.matheusthoffmann.xadrezweb.service;
 
+import io.github.matheusthoffmann.xadrezweb.domain.chess_system.chess.ChessMatch;
+import io.github.matheusthoffmann.xadrezweb.domain.chess_system.chess.ChessPosition;
 import io.github.matheusthoffmann.xadrezweb.domain.match.Match;
 import io.github.matheusthoffmann.xadrezweb.domain.user.User;
 import io.github.matheusthoffmann.xadrezweb.dto.match.MatchResponse;
+import io.github.matheusthoffmann.xadrezweb.dto.match.MoveRequest;
 import io.github.matheusthoffmann.xadrezweb.exception.ResourceNotFoundException;
 import io.github.matheusthoffmann.xadrezweb.repository.MatchRepository;
 import io.github.matheusthoffmann.xadrezweb.repository.UserRepository;
@@ -13,11 +16,13 @@ public class MatchService {
 
     private final MatchRepository matchRepository;
     private final UserRepository userRepository;
+    private final GameManager gameManager;
 
     public MatchService(MatchRepository matchRepository,
-                        UserRepository userRepository) {
+                        UserRepository userRepository, GameManager gameManager) {
         this.matchRepository = matchRepository;
         this.userRepository = userRepository;
+        this.gameManager = gameManager;
     }
 
     public MatchResponse create(Long playerWhiteId, Long playerBlackId) {
@@ -31,6 +36,8 @@ public class MatchService {
         Match match = new Match(white, black);
 
         matchRepository.save(match);
+
+        ChessMatch chessMatch = gameManager.createGame(match.getId());
 
         return toResponse(match);
     }
@@ -49,5 +56,22 @@ public class MatchService {
                 match.getPlayerBlack().getId(),
                 match.getStatus().name()
         );
+    }
+
+    public void makeMove(Long matchId, MoveRequest request) {
+
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
+
+        ChessMatch game = gameManager.getGame(matchId);
+
+        if (game == null) {
+            throw new RuntimeException("Game not initialized");
+        }
+
+        ChessPosition source = ChessPosition.fromString(request.source());
+        ChessPosition target = ChessPosition.fromString(request.target());
+
+        game.performChessMove(source, target);
     }
 }
