@@ -1,5 +1,6 @@
 package io.github.matheusthoffmann.xadrezweb.controller;
 
+import io.github.matheusthoffmann.xadrezweb.dto.board.BoardResponse;
 import io.github.matheusthoffmann.xadrezweb.dto.match.MatchResponse;
 import io.github.matheusthoffmann.xadrezweb.dto.match.MoveRequest;
 import io.github.matheusthoffmann.xadrezweb.service.MatchService;
@@ -29,6 +30,11 @@ public class MatchController {
     @GetMapping("/{id}")
     public ResponseEntity<MatchResponse> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @GetMapping("/{id}/board")
+    public ResponseEntity<BoardResponse> getBoard(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getBoard(id));
     }
 
     @PostMapping("/{id}/moves")
