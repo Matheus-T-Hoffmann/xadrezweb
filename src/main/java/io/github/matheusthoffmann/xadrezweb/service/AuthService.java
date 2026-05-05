@@ -3,6 +3,7 @@ package io.github.matheusthoffmann.xadrezweb.service;
 import io.github.matheusthoffmann.xadrezweb.domain.user.User;
 import io.github.matheusthoffmann.xadrezweb.dto.auth.LoginRequest;
 import io.github.matheusthoffmann.xadrezweb.dto.auth.LoginResponse;
+import io.github.matheusthoffmann.xadrezweb.exception.AuthentificationException;
 import io.github.matheusthoffmann.xadrezweb.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +18,10 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
         User user = repository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new AuthentificationException("Invalid email or password"));
 
         if (!user.getPassword().equals(request.password())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new AuthentificationException("Invalid email or password");
         }
 
         return new LoginResponse(

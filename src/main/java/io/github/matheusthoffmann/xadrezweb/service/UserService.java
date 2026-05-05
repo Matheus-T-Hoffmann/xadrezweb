@@ -3,6 +3,8 @@ package io.github.matheusthoffmann.xadrezweb.service;
 import io.github.matheusthoffmann.xadrezweb.domain.user.User;
 import io.github.matheusthoffmann.xadrezweb.dto.user.UserRequest;
 import io.github.matheusthoffmann.xadrezweb.dto.user.UserResponse;
+import io.github.matheusthoffmann.xadrezweb.exception.BusinessException;
+import io.github.matheusthoffmann.xadrezweb.exception.ResourceNotFoundException;
 import io.github.matheusthoffmann.xadrezweb.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,7 @@ public class UserService {
     public UserResponse create(UserRequest request) {
         repository.findByEmail(request.email())
                 .ifPresent(u -> {
-                    throw new RuntimeException("Email already exists");
+                    throw new BusinessException("Email already exists");
                 });
 
         User user = new User(
@@ -35,7 +37,7 @@ public class UserService {
 
     public UserResponse findById(Long id) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return toResponse(user);
     }
@@ -49,7 +51,7 @@ public class UserService {
 
     public UserResponse update(Long id, UserRequest request) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         user.setUsername(request.username());
         user.setEmail(request.email());
