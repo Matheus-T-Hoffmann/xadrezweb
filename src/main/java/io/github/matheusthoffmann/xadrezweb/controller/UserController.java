@@ -3,6 +3,7 @@ package io.github.matheusthoffmann.xadrezweb.controller;
 import io.github.matheusthoffmann.xadrezweb.dto.user.UserRequest;
 import io.github.matheusthoffmann.xadrezweb.dto.user.UserResponse;
 import io.github.matheusthoffmann.xadrezweb.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> create(@RequestBody UserRequest request) {
+    public ResponseEntity<UserResponse> create(@RequestBody @Valid UserRequest request) {
         return ResponseEntity.ok(service.create(request));
     }
 
