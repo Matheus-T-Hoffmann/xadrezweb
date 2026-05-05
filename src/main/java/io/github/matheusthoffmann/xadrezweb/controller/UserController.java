@@ -1,5 +1,6 @@
 package io.github.matheusthoffmann.xadrezweb.controller;
 
+import io.github.matheusthoffmann.xadrezweb.dto.match.MatchResponse;
 import io.github.matheusthoffmann.xadrezweb.dto.user.UserRequest;
 import io.github.matheusthoffmann.xadrezweb.dto.user.UserResponse;
 import io.github.matheusthoffmann.xadrezweb.service.UserService;
@@ -45,5 +46,12 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/matches")
+    public ResponseEntity<List<MatchResponse>> getUserMatches(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(service.getUserMatches(id));
     }
 }

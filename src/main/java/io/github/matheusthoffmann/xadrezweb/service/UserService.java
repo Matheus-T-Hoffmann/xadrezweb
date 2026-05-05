@@ -1,10 +1,13 @@
 package io.github.matheusthoffmann.xadrezweb.service;
 
+import io.github.matheusthoffmann.xadrezweb.domain.match.Match;
 import io.github.matheusthoffmann.xadrezweb.domain.user.User;
+import io.github.matheusthoffmann.xadrezweb.dto.match.MatchResponse;
 import io.github.matheusthoffmann.xadrezweb.dto.user.UserRequest;
 import io.github.matheusthoffmann.xadrezweb.dto.user.UserResponse;
 import io.github.matheusthoffmann.xadrezweb.exception.BusinessException;
 import io.github.matheusthoffmann.xadrezweb.exception.ResourceNotFoundException;
+import io.github.matheusthoffmann.xadrezweb.repository.MatchRepository;
 import io.github.matheusthoffmann.xadrezweb.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +17,11 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository repository;
+    private final MatchRepository matchRepository;
 
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, MatchRepository matchRepository) {
         this.repository = repository;
+        this.matchRepository = matchRepository;
     }
 
     public UserResponse create(UserRequest request) {
@@ -72,5 +77,18 @@ public class UserService {
                 user.getEmail(),
                 user.getElo()
         );
+    }
+
+    public List<MatchResponse> getUserMatches(Long userId) {
+
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Match> matches =
+                matchRepository.findByPlayerWhiteOrPlayerBlack(user, user);
+
+        return matches.stream()
+                .map(MatchResponse::toMatchResponse)
+                .toList();
     }
 }

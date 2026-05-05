@@ -59,7 +59,8 @@ public class MatchService {
                 match.getId(),
                 match.getPlayerWhite().getId(),
                 match.getPlayerBlack().getId(),
-                match.getStatus().name()
+                match.getStatus().name(),
+                match.getWinner() != null ? match.getWinner().getId() : null
         );
     }
 
