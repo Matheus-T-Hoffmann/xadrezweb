@@ -3,11 +3,14 @@ package io.github.matheusthoffmann.xadrezweb.service;
 import io.github.matheusthoffmann.xadrezweb.domain.chess_system.chess.ChessMatch;
 import io.github.matheusthoffmann.xadrezweb.domain.chess_system.chess.ChessPiece;
 import io.github.matheusthoffmann.xadrezweb.domain.chess_system.chess.ChessPosition;
+import io.github.matheusthoffmann.xadrezweb.domain.chess_system.chess.Color;
 import io.github.matheusthoffmann.xadrezweb.domain.match.Match;
+import io.github.matheusthoffmann.xadrezweb.domain.match.MatchStatus;
 import io.github.matheusthoffmann.xadrezweb.domain.user.User;
 import io.github.matheusthoffmann.xadrezweb.dto.board.BoardResponse;
 import io.github.matheusthoffmann.xadrezweb.dto.match.MatchResponse;
 import io.github.matheusthoffmann.xadrezweb.dto.match.MoveRequest;
+import io.github.matheusthoffmann.xadrezweb.exception.BusinessException;
 import io.github.matheusthoffmann.xadrezweb.exception.ResourceNotFoundException;
 import io.github.matheusthoffmann.xadrezweb.repository.MatchRepository;
 import io.github.matheusthoffmann.xadrezweb.repository.UserRepository;
@@ -65,6 +68,10 @@ public class MatchService {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
 
+        if (match.getStatus() == MatchStatus.FINISHED) {
+            throw new BusinessException("Match already finished");
+        }
+
         ChessMatch game = gameManager.getGame(matchId);
 
         if (game == null) {
@@ -75,6 +82,16 @@ public class MatchService {
         ChessPosition target = ChessPosition.fromString(request.target());
 
         game.performChessMove(source, target);
+
+        if (game.isCheckMate()) {
+
+            User winner = game.getCurrentPlayer() == Color.WHITE
+                    ? match.getPlayerBlack()
+                    : match.getPlayerWhite();
+
+            match.finish(winner);
+            matchRepository.save(match);
+        }
     }
 
     public BoardResponse getBoard(Long matchId) {
